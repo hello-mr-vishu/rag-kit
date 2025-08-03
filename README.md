@@ -21,7 +21,7 @@ This project is a Retrieval-Augmented Generation (RAG) based medical chatbot. It
 -   **Embeddings:** Hugging Face Sentence Transformers (`all-MiniLM-L6-v2`)
 -   **LLM:** Google Gemini
 
-<img src="documents/chatbot.png" alt="Chatbot_screenshot" width="400" height="300">
+<img src="documents/chatbot.png" alt="Chatbot_screenshot" width="800" height="600">
 
 
 ## Setup and Installation
