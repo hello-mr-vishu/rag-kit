@@ -47,7 +47,6 @@
         </div>
     </div>
 </div>
-
 <script>
 $(document).ready(function() {
     function scrollToBottom() {
@@ -62,33 +61,48 @@ $(document).ready(function() {
         const str_time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         var rawText = $("#text").val();
 
+        // Append user message
         var userHtml = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send">' +
-            rawText + '<span class="msg_time_send">'+ str_time + '</span></div><div class="img_cont_msg">' +
+            rawText + '<span class="msg_time_send">' + str_time + '</span></div><div class="img_cont_msg">' +
             '<img src="https://i.ibb.co/d5b84Xw/Untitled-design.png" class="rounded-circle user_img_msg"></div></div>';
 
         $("#text").val("");
         $("#messageFormeight").append(userHtml);
 
-        // Show loading animation
+        // Show loading animation and disable send button
         var loadingHtml = '<div id="loading" class="loading">Bot is typing...</div>';
         $("#messageFormeight").append(loadingHtml);
+        $("#send").prop("disabled", true); // Disable send button
         scrollToBottom();
 
         $.ajax({
             data: { msg: rawText },
             type: "POST",
             url: "/get",
+            dataType: "json", // Explicitly specify JSON response
             success: function(data) {
-                $("#loading").remove();  // Remove loading text
+                console.log("Response data:", data); // Debug: Log the response
+                $("#loading").remove(); // Remove loading text
+                $("#send").prop("disabled", false); // Re-enable send button
+
+                // Ensure data.answer is a string
+                var botResponse = typeof data.answer === "string" ? data.answer : "Error: Invalid response format";
                 var botHtml = '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg">' +
                     '<img src="https://cdn-icons-png.flaticon.com/512/387/387569.png" class="rounded-circle user_img_msg"></div>' +
-                    '<div class="msg_cotainer">' + data.answer + '<span class="msg_time">' + str_time + '</span></div></div>';
+                    '<div class="msg_cotainer">' + botResponse + '<span class="msg_time">' + str_time + '</span></div></div>';
+
                 $("#messageFormeight").append($.parseHTML(botHtml));
                 scrollToBottom();
             },
-            error: function() {
+            error: function(xhr, status, error) {
+                console.log("Error:", xhr, status, error); // Debug: Log error details
                 $("#loading").remove();
-                alert("Error: Could not reach server.");
+                $("#send").prop("disabled", false); // Re-enable send button
+                var errorMessage = "Error: Could not reach server.";
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    errorMessage = "Error: " + xhr.responseJSON.error;
+                }
+                alert(errorMessage);
             }
         });
     });
